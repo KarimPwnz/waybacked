@@ -5,17 +5,15 @@ import argparse
 from functools import wraps
 
 
-def retry(n):
+def except_retry(retries):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            retries = 0
-            while retries < n:
-                result = func(*args, **kwargs)
-                if result:
-                    return result
-                time.sleep(randint(5, 10))
-                retries += 1
+            for _ in range(retries+1):
+                try:
+                    return func(*args, **kwargs)
+                except:
+                    time.sleep(randint(5, 10))
 
         return wrapper
 
@@ -31,17 +29,13 @@ class ArchiveSearcher:
         for page in range(num_pages):
             self.print_page(page)
 
-    @retry(10)
+    @except_retry(10)
     def print_page(self, page):
-        try:
-            response_json = requests.get(
-                f"http://web.archive.org/cdx/search/cdx?url={self.search}&output=json&fl=original&collapse=urlkey&page={page}"
-            ).json()[1:]
-        except:
-            return False
+        response_json = requests.get(
+            f"http://web.archive.org/cdx/search/cdx?url={self.search}&output=json&fl=original&collapse=urlkey&page={page}"
+        ).json()[1:]
         for row in response_json:
             print(row[0])
-        return True
 
     def get_num_pages(self):
         response = requests.get(
@@ -54,7 +48,8 @@ class ArchiveSearcher:
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("search", metavar="search", nargs=None, help="Search query")
+    parser.add_argument("search", metavar="search",
+                        nargs=None, help="Search query")
     args = parser.parse_args()
     searcher = ArchiveSearcher(args.search)
     searcher.run_search()
