@@ -61,9 +61,12 @@ def main():
                         nargs=None, help="Search query")
     args = parser.parse_args()
     search = WaybackSearch(args.search)
-    for page in search.run():
-        for url in page:
-            print(url)
+    try:
+        for page in search.run():
+            for url in page:
+                print(url)
+    except KeyboardInterrupt:
+        pass
 
 
 if __name__ == "__main__":
