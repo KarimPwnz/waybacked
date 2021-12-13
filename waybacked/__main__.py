@@ -48,7 +48,7 @@ class WaybackSearch:
         try:
             pages_count = self.api.get_pages_count(self.search)
         except:
-            return Exception("Couldn't get number of archive pages")
+            raise Exception("Couldn't get number of archive pages")
         for page in range(pages_count):
             data = self.api.get_page_json(self.search, page)
             if data:
@@ -71,6 +71,8 @@ def main():
                 print(url, flush=True)
     except KeyboardInterrupt:
         pass
+    except Exception as e:
+        print(e)
 
 
 if __name__ == "__main__":
