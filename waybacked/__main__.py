@@ -1,16 +1,17 @@
-import time
-from random import randint
-import requests
 import argparse
-from functools import wraps
 import json
+import time
+from functools import wraps
+from random import randint
+
+import requests
 
 
 def except_retry(retries, exceptions=(Exception,)):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            for _ in range(retries+1):
+            for _ in range(retries + 1):
                 try:
                     return func(*args, **kwargs)
                 except exceptions:
@@ -24,15 +25,17 @@ def except_retry(retries, exceptions=(Exception,)):
 class WaybackAPI:
     @staticmethod
     def get_pages_count(search):
-        return int(requests.get(
-            f"http://web.archive.org/cdx/search/cdx?url={search}&showNumPages=true"
-        ).text)
+        return int(
+            requests.get(
+                f"https://web.archive.org/cdx/search/cdx?url={search}&showNumPages=true"
+            ).text
+        )
 
     @staticmethod
     @except_retry(10, (requests.RequestException, json.decoder.JSONDecodeError))
     def get_page_json(search, page):
         return requests.get(
-            f"http://web.archive.org/cdx/search/cdx?url={search}&output=json&fl=original&collapse=urlkey&page={page}"
+            f"https://web.archive.org/cdx/search/cdx?url={search}&output=json&fl=original&collapse=urlkey&page={page}"
         ).json()[1:]
 
 
@@ -57,8 +60,7 @@ class WaybackSearch:
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("search", metavar="search",
-                        nargs=None, help="Search query")
+    parser.add_argument("search", metavar="search", nargs=None, help="Search query")
     args = parser.parse_args()
     search = WaybackSearch(args.search)
     try:
