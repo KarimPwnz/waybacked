@@ -8,6 +8,7 @@ Get URLs from the Wayback Machine. `waybacked` is well-suited for bug bounty or 
 
 ```
 $ git clone https://github.com/KarimPwnz/waybacked.git
+$ cd waybacked
 $ python3 setup.py install
 ```
 
