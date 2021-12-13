@@ -50,7 +50,9 @@ class WaybackSearch:
         except:
             return Exception("Couldn't get number of archive pages")
         for page in range(pages_count):
-            yield self.page_json_to_urls(self.api.get_page_json(self.search, page))
+            data = self.api.get_page_json(self.search, page)
+            if data:
+                yield self.page_json_to_urls(data)
 
     @staticmethod
     def page_json_to_urls(page_json):
