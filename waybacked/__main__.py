@@ -1,15 +1,18 @@
 import argparse
+import functools
 import json
 import time
-from functools import wraps
 from random import randint
 
 import requests
 
+# Make print always flush
+print = functools.partial(print, flush=True)
+
 
 def except_retry(retries, exceptions=(Exception,)):
     def decorator(func):
-        @wraps(func)
+        @functools.wraps(func)
         def wrapper(*args, **kwargs):
             for _ in range(retries + 1):
                 try:
