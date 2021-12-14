@@ -1,5 +1,4 @@
 import argparse
-import json
 import time
 from functools import wraps
 from random import randint
@@ -32,11 +31,15 @@ class WaybackAPI:
         )
 
     @staticmethod
-    @except_retry(10, (requests.RequestException, json.decoder.JSONDecodeError))
-    def get_page_json(search, page):
+    @except_retry(10, (requests.RequestException))
+    def get_page_text(search, page):
         return requests.get(
-            f"https://web.archive.org/cdx/search/cdx?url={search}&output=json&fl=original&collapse=urlkey&page={page}"
-        ).json()[1:]
+            f"https://web.archive.org/cdx/search/cdx?url={search}&fl=original&collapse=urlkey&page={page}"
+        ).text
+
+
+class WaybackSearchError(Exception):
+    pass
 
 
 class WaybackSearch:
@@ -48,16 +51,11 @@ class WaybackSearch:
         try:
             pages_count = self.api.get_pages_count(self.search)
         except:
-            raise Exception("Couldn't get number of archive pages")
+            raise WaybackSearchError("Couldn't get number of archive pages")
         for page in range(pages_count):
-            data = self.api.get_page_json(self.search, page)
+            data = self.api.get_page_text(self.search, page).split("\n")
             if data:
-                yield self.page_json_to_urls(data)
-
-    @staticmethod
-    def page_json_to_urls(page_json):
-        for row in page_json:
-            yield row[0]
+                yield data
 
 
 def main():
@@ -71,7 +69,7 @@ def main():
                 print(url, flush=True)
     except KeyboardInterrupt:
         pass
-    except Exception as e:
+    except WaybackSearchError as e:
         print(e)
 
 
