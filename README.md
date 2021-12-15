@@ -18,3 +18,14 @@ $ python3 setup.py install
 $ waybacked <search_query>
 ```
 
+or
+
+```
+$ echo <search_query> | waybacked
+```
+
+or
+
+```
+$ cat searches.txt | waybacked
+```
