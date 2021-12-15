@@ -1,4 +1,5 @@
 import argparse
+import sys
 import time
 from functools import wraps
 from random import randint
@@ -59,19 +60,28 @@ class WaybackSearch:
                 yield data
 
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("search", metavar="search", nargs=None, help="Search query")
-    args = parser.parse_args()
-    search = WaybackSearch(args.search)
+def process_search(search):
+    search = WaybackSearch(search)
     try:
         for page in search.run():
             for url in page:
                 print(url, flush=True)
-    except KeyboardInterrupt:
-        pass
     except WaybackSearchError as e:
         print(e)
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "search", metavar="search", nargs="?", help="Search query", default=None
+    )
+    args = parser.parse_args()
+    search_strs = (args.search,) if args.search else (l.rstrip("\n") for l in sys.stdin)
+    try:
+        for search in search_strs:
+            process_search(search)
+    except KeyboardInterrupt:
+        pass
 
 
 if __name__ == "__main__":
