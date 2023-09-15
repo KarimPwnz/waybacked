@@ -53,7 +53,9 @@ class WaybackSearch:
             pages_count = self.api.get_pages_count(self.search)
         except:
             raise WaybackSearchError("Couldn't get number of archive pages")
+        print(f"Found {pages_count} pages", file=sys.stderr)
         for page in range(pages_count):
+            print(f"Getting page: {page + 1}/{pages_count}", file=sys.stderr)
             # Split lines and remove last empty line
             data = self.api.get_page_text(self.search, page).split("\n")[:-1]
             if data:
